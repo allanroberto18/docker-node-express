@@ -1,0 +1,45 @@
+version: '3.7'
+services:
+  node:
+    image: node
+    container_name: ${APP_NAME}-api
+    user: node
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - 8080:3000  
+    environment:
+      - NODE_ENV=production
+    command: "npm start"
+    depends_on: 
+      - mongo
+
+  mongo:
+    image: mongo
+    container_name: ${APP_NAME}-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  mongo-express:
+    image: mongo-express
+    container_name: ${APP_NAME}-mongo-express
+    ports:
+      - 8081:8080
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+    depends_on:
+      - mongo
+
+  nginx:
+    build: ./docker/nginx
+    container_name: ${APP_NAME}-web
+    hostname: ${APP_NAME}
+    ports: 
+      - 80:80
+    depends_on:
+      - node
+      - mongo
+    
